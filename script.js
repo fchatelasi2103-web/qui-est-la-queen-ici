@@ -1,477 +1,585 @@
-/* =============================================
-   QUI EST LA QUEEN — script.js
-   Version : soirée entre potes 👑
-   ============================================= */
+let players = [];
 
-/* ================================================
-   🎨 CONFIGURATION — MODIFIE ICI tes joueuses !
-   ================================================
-   Chaque joueuse a :
-   - name      : prénom affiché sur la carte
-   - emoji     : emoji affiché si pas de photo
-   - photo     : chemin image (ex: "photos/lea.jpg") ou null
-   - anecdote  : fun fact secret affiché au joueur au début
-   ================================================ */
-const PLAYERS = [
-  {
-    name: "Léa",
-    emoji: "💅",
-    photo: null,
-    anecdote: "A déjà commandé un kebab à 3h du mat pour tout le groupe."
-  },
-  {
-    name: "Camille",
-    emoji: "🍷",
-    photo: null,
-    anecdote: "Connaît le barman de chaque bar du quartier par son prénom."
-  },
-  {
-    name: "Zoé",
-    emoji: "🎤",
-    photo: null,
-    anecdote: "Lance spontanément du karaoké n'importe où, n'importe quand."
-  },
-  {
-    name: "Sarah",
-    emoji: "📸",
-    photo: null,
-    anecdote: "Prend 47 photos avant d'en poster une sur Instagram."
-  },
-  {
-    name: "Manon",
-    emoji: "🛋️",
-    photo: null,
-    anecdote: "Préférerait rester en pyjama mais finit toujours à s'amuser le plus."
-  },
-  {
-    name: "Chloé",
-    emoji: "🕺",
-    photo: null,
-    anecdote: "Peut danser sur n'importe quelle chanson, même la pub Free."
-  },
-  {
-    name: "Emma",
-    emoji: "🌮",
-    photo: null,
-    anecdote: "Propose des tacos en guise de solution à tous les problèmes de la vie."
-  },
-  {
-    name: "Julie",
-    emoji: "🔮",
-    photo: null,
-    anecdote: "Croit aux horoscopes mais prétend que non."
-  }
-  /*
-  ─── Comment personnaliser ───────────────────────
-  Ajouter une joueuse : copie un bloc { } ci-dessus.
-  Supprimer : retire le bloc entier.
-  Photo locale : photo: "photos/prenom.jpg"
-    (crée un dossier /photos/ à côté de index.html)
-  Photo en ligne : photo: "https://ton-url.com/img.jpg"
-  ─────────────────────────────────────────────── */
-];
-
-/* ================================================
-   🎲 QUESTIONS INSPIRATIONS
-   ================================================ */
 const QUESTIONS = [
-  "A déjà ghosté quelqu'un pendant plus de 3 semaines ? 👻",
-  "Toujours en retard (au moins 15 min) ? ⏰",
-  "La plus bordélique chez elle ? 🌀",
-  "Boit des spritz à n'importe quelle heure ? 🍊",
-  "A pleuré devant une pub ? 🎭",
-  "A un crush secret qu'elle nie absolument ? 😳",
-  "Serait la première éliminée dans Koh Lanta ? 🏝️",
-  "Utilise encore des filtres Snapchat en 2024 ? 😂",
-  "A déjà fait du shopping alors qu'elle avait 'rien à mettre' ? 🛍️",
-  "La plus susceptible de passer la soirée à scroller TikTok ? 📱",
-  "A un ex qu'elle stalke encore en mode ninja ? 🔍",
-  "Pleure dès le générique d'un film ? 🎬",
-  "Fait le moins de vaisselle quand elle vient dormir ? 🍽️",
-  "La plus accro à son téléphone pendant une soirée ? 📲",
-  "A déjà commandé de la nourriture pour elle seule à 2h du mat ? 🌙",
-  "La reine du drama pour un oui ou un non ? 👑",
-  "Oublie les anniversaires même en ayant des rappels ? 🎂",
-  "La plus susceptible de rater son stop de métro ? 🚇",
-  "Fait des plans et les annule le jour même ? 🤦",
-  "La plus susceptible de se perdre même avec Google Maps ? 🗺️"
+  "Qui arrive toujours en retard ? ⏰",
+  "Qui répond le plus tard ? 📱",
+  "Qui ghoste le plus ? 👻",
+  "Qui ferait de la télé-réalité ? 📺",
+  "Qui ferait le pire karaoké ? 🎤",
+  "Qui est la plus bordélique ? 🧹"
 ];
 
-/* ================================================
-   🔥 GAGES MODE SOIRÉE
-   ================================================ */
-const GAGES_WIN = [
-  "🥂 Tout le monde boit en ton honneur, queen !",
-  "🎤 Tu choisis la prochaine chanson !",
-  "🏆 Tu distribues 3 gorgées à qui tu veux.",
-  "👑 Tu es officiellement queen jusqu'à la fin de la manche.",
-  "🎉 Tout le monde t'applaudit pendant 10 secondes !"
-];
-const GAGES_LOSE = [
-  "🍺 Bois une gorgée pour chaque manche jouée !",
-  "😬 Tu racontes une anecdote gênante sur toi.",
-  "🙈 Tout le groupe vote ta péripétie la plus embarrassante.",
-  "🎭 Tu fais une imitation de quelqu'un dans le groupe.",
-  "🔥 Le groupe te pose une question, tu réponds honnêtement."
-];
-
-/* ================================================
-   🔊 SONS (Web Audio API — aucun fichier requis)
-   ================================================ */
-let audioCtx = null;
-function getAudioCtx() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  return audioCtx;
-}
-function playTone(freq, type = 'sine', duration = .15, vol = .3) {
-  if (!gameState.sound) return;
-  try {
-    const ctx = getAudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = type;
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(vol, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + duration);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + duration);
-  } catch (e) {}
-}
-function soundEliminate() { playTone(220, 'sawtooth', .2, .2); }
-function soundRestore()   { playTone(600, 'sine', .15, .2); }
-function soundQuestion()  {
-  [440, 550, 660].forEach((f, i) => setTimeout(() => playTone(f, 'sine', .12, .2), i * 80));
-}
-function soundWin()  {
-  [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => playTone(f, 'sine', .3, .3), i * 120));
-}
-function soundLose() {
-  [330, 262, 196].forEach((f, i) => setTimeout(() => playTone(f, 'sawtooth', .3, .2), i * 120));
-}
-
-/* ================================================
-   🎊 CONFETTIS (canvas)
-   ================================================ */
-const confCanvas = document.getElementById('confetti-canvas');
-const confCtx = confCanvas.getContext('2d');
-let confPieces = [];
-let confAnimId = null;
-
-function launchConfetti() {
-  confCanvas.width  = window.innerWidth;
-  confCanvas.height = window.innerHeight;
-  const colors = ['#ff3fa4', '#a855f7', '#ffd93d', '#06d6a0', '#ff4d6d', '#fff'];
-  confPieces = Array.from({ length: 130 }, () => ({
-    x: Math.random() * confCanvas.width,
-    y: Math.random() * -confCanvas.height,
-    r: Math.random() * 8 + 4,
-    d: Math.random() * 80 + 20,
-    color: colors[Math.floor(Math.random() * colors.length)],
-    tilt: Math.random() * 10 - 10,
-    tiltAngle: 0,
-    tiltSpeed: Math.random() * .08 + .04
-  }));
-  if (confAnimId) cancelAnimationFrame(confAnimId);
-  animateConf();
-  setTimeout(stopConfetti, 5500);
-}
-function animateConf() {
-  confCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
-  confPieces.forEach(p => {
-    p.tiltAngle += p.tiltSpeed;
-    p.y += (Math.cos(p.d + p.r) + 2.5);
-    p.x += Math.sin(p.tiltAngle) * .8;
-    p.tilt = Math.sin(p.tiltAngle) * 12;
-    if (p.y > confCanvas.height) { p.y = -20; p.x = Math.random() * confCanvas.width; }
-    confCtx.beginPath();
-    confCtx.lineWidth = p.r / 2;
-    confCtx.strokeStyle = p.color;
-    confCtx.moveTo(p.x + p.tilt + p.r / 4, p.y);
-    confCtx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 4);
-    confCtx.stroke();
-  });
-  confAnimId = requestAnimationFrame(animateConf);
-}
-function stopConfetti() {
-  if (confAnimId) { cancelAnimationFrame(confAnimId); confAnimId = null; }
-  confCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
-}
-
-/* ================================================
-   🎮 ÉTAT GLOBAL DU JEU
-   ================================================ */
-const gameState = {
-  manche: 1,
-  partyMode: false,
-  sound: true,
-  secretIdx: null,
-  eliminated: new Set()
+const state = {
+  secretIndex: null
 };
 
-/* ================================================
-   🖥️ ÉCRANS
-   ================================================ */
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const el = document.getElementById(id);
-  if (el) el.classList.add('active');
+function savePlayers() {
+
+  localStorage.setItem(
+    "queen_players",
+    JSON.stringify(players)
+  );
 }
 
-/* ================================================
-   🃏 CARTES
-   ================================================ */
-function avatarInner(player) {
-  if (player.photo) {
-    return `<img src="${player.photo}" alt="${player.name}">`;
+function loadPlayers() {
+
+  const saved =
+    localStorage.getItem("queen_players");
+
+  if (saved) {
+
+    players = JSON.parse(saved);
+
+  } else {
+
+    players = [];
   }
-  return player.emoji;
+}
+
+function avatar(player) {
+
+  if (player.photo) {
+
+    return `
+      <img src="${player.photo}" alt="">
+    `;
+  }
+
+  return "👑";
+}
+
+function showScreen(id) {
+
+  document
+    .querySelectorAll(".screen")
+    .forEach(screen => {
+      screen.classList.remove("active");
+    });
+
+  document
+    .getElementById(id)
+    .classList.add("active");
 }
 
 function buildCards() {
-  const grid = document.getElementById('cards-grid');
-  grid.innerHTML = '';
-  PLAYERS.forEach((p, i) => {
-    const card = document.createElement('div');
-    card.className = 'player-card' + (gameState.eliminated.has(i) ? ' eliminated' : '');
-    card.dataset.index = i;
+
+  const grid =
+    document.getElementById("cards-grid");
+
+  grid.innerHTML = "";
+
+  players.forEach((player) => {
+
+    const card =
+      document.createElement("div");
+
+    card.className = "player-card";
+
     card.innerHTML = `
-      <div class="card-avatar">${avatarInner(p)}</div>
-      <span class="card-name">${p.name}</span>
+      <div class="avatar">
+        ${avatar(player)}
+      </div>
+
+      <div class="name">
+        ${player.name}
+      </div>
     `;
-    card.addEventListener('click', () => toggleCard(i, card));
+
+    card.addEventListener("click", () => {
+      card.classList.toggle("eliminated");
+    });
+
     grid.appendChild(card);
   });
 }
 
-function toggleCard(i, card) {
-  if (gameState.eliminated.has(i)) {
-    gameState.eliminated.delete(i);
-    card.classList.remove('eliminated');
-    soundRestore();
-  } else {
-    gameState.eliminated.add(i);
-    card.classList.add('eliminated');
-    card.classList.add('card-pop');
-    card.addEventListener('animationend', () => card.classList.remove('card-pop'), { once: true });
-    soundEliminate();
-  }
-}
-
-/* ================================================
-   👑 QUEEN SECRÈTE
-   ================================================ */
 function pickSecret() {
-  gameState.secretIdx = Math.floor(Math.random() * PLAYERS.length);
+
+  state.secretIndex =
+    Math.floor(Math.random() * players.length);
 }
 
-function showSecretScreen() {
-  const p = PLAYERS[gameState.secretIdx];
-  document.getElementById('secret-avatar').innerHTML = avatarInner(p);
-  document.getElementById('secret-name').textContent = p.name;
-  document.getElementById('secret-anecdote').textContent = p.anecdote || '';
-  showScreen('screen-secret');
+function startGame() {
+
+  if (players.length < 2) {
+
+    alert(
+      "Ajoute au moins 2 joueuses 👀"
+    );
+
+    return;
+  }
+
+  pickSecret();
+
+  const player =
+    players[state.secretIndex];
+
+  document.getElementById(
+    "secret-avatar"
+  ).innerHTML = avatar(player);
+
+  document.getElementById(
+    "secret-name"
+  ).textContent = player.name;
+
+  document.getElementById(
+    "secret-anecdote"
+  ).textContent =
+    player.anecdote || "";
+
+  buildCards();
+
+  showScreen("screen-secret");
 }
 
-/* ================================================
-   🎲 QUESTION
-   ================================================ */
-let lastQIdx = -1;
 function randomQuestion() {
-  let idx;
-  do { idx = Math.floor(Math.random() * QUESTIONS.length); }
-  while (idx === lastQIdx && QUESTIONS.length > 1);
-  lastQIdx = idx;
-  return QUESTIONS[idx];
+
+  const question =
+    QUESTIONS[
+      Math.floor(
+        Math.random() * QUESTIONS.length
+      )
+    ];
+
+  document.getElementById(
+    "question-text"
+  ).textContent = question;
 }
 
-/* ================================================
-   🔥 GAGE
-   ================================================ */
-function randomGage(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-/* ================================================
-   🎯 MODAL DEVINER
-   ================================================ */
 function openGuessModal() {
-  const grid = document.getElementById('guess-grid');
-  grid.innerHTML = '';
-  PLAYERS.forEach((p, i) => {
-    const item = document.createElement('div');
-    item.className = 'guess-item';
+
+  const grid =
+    document.getElementById("guess-grid");
+
+  grid.innerHTML = "";
+
+  players.forEach((player, index) => {
+
+    const item =
+      document.createElement("div");
+
+    item.className = "guess-item";
+
     item.innerHTML = `
-      <div class="guess-avatar">${avatarInner(p)}</div>
-      <span class="guess-name">${p.name}</span>
+      <div class="avatar small">
+        ${avatar(player)}
+      </div>
+
+      <div class="name">
+        ${player.name}
+      </div>
     `;
-    item.addEventListener('click', () => resolveGuess(i));
+
+    item.addEventListener("click", () => {
+
+      if (index === state.secretIndex) {
+
+        document.getElementById(
+          "win-avatar"
+        ).innerHTML = avatar(player);
+
+        document.getElementById(
+          "win-name"
+        ).textContent = player.name;
+
+        showScreen("screen-win");
+
+      } else {
+
+        const real =
+          players[state.secretIndex];
+
+        document.getElementById(
+          "lose-avatar"
+        ).innerHTML = avatar(real);
+
+        document.getElementById(
+          "lose-name"
+        ).textContent = real.name;
+
+        showScreen("screen-lose");
+      }
+
+      closeGuessModal();
+    });
+
     grid.appendChild(item);
   });
-  document.getElementById('modal-guess').classList.remove('hidden');
+
+  document
+    .getElementById("modal-guess")
+    .classList.remove("hidden");
 }
+
 function closeGuessModal() {
-  document.getElementById('modal-guess').classList.add('hidden');
+
+  document
+    .getElementById("modal-guess")
+    .classList.add("hidden");
 }
 
-/* ================================================
-   🏆 RÉSOLUTION DU GUESS
-   ================================================ */
-function resolveGuess(guessedIdx) {
-  closeGuessModal();
-  const correct = guessedIdx === gameState.secretIdx;
-  const secret  = PLAYERS[gameState.secretIdx];
-  const guessed = PLAYERS[guessedIdx];
+function showToast(text) {
 
-  if (correct) {
-    soundWin();
-    launchConfetti();
-    document.getElementById('win-sub').textContent =
-      `Tu as trouvé ! C'était bien ${secret.name} 🎉`;
-    document.getElementById('win-avatar').innerHTML = avatarInner(secret);
-    document.getElementById('win-name').textContent = secret.name;
-    const gEl = document.getElementById('win-gage');
-    if (gameState.partyMode) {
-      gEl.textContent = randomGage(GAGES_WIN);
-      gEl.classList.remove('hidden');
-    } else {
-      gEl.classList.add('hidden');
-    }
-    showScreen('screen-win');
-  } else {
-    soundLose();
-    document.getElementById('lose-sub').textContent =
-      `Faux ! Tu as dit ${guessed.name}… mais c'était ${secret.name} 😬`;
-    document.getElementById('lose-avatar').innerHTML = avatarInner(secret);
-    document.getElementById('lose-name').textContent = secret.name;
-    const gEl = document.getElementById('lose-gage');
-    if (gameState.partyMode) {
-      gEl.textContent = randomGage(GAGES_LOSE);
-      gEl.classList.remove('hidden');
-    } else {
-      gEl.classList.add('hidden');
-    }
-    showScreen('screen-lose');
+  const toast =
+    document.getElementById("toast");
+
+  toast.textContent = text;
+
+  toast.classList.add("show");
+
+  setTimeout(() => {
+
+    toast.classList.remove("show");
+
+  }, 2000);
+}
+
+function renderPlayers() {
+
+  const list =
+    document.getElementById("players-list");
+
+  list.innerHTML = "";
+
+  players.forEach((player, index) => {
+
+    const card =
+      document.createElement("div");
+
+    card.className = "manage-card";
+
+    card.innerHTML = `
+      <div class="avatar">
+        ${avatar(player)}
+      </div>
+
+      <div class="manage-info">
+
+        <div class="manage-name">
+          ${player.name}
+        </div>
+
+        <div class="manage-anecdote">
+          ${player.anecdote || ""}
+        </div>
+
+      </div>
+
+      <button class="delete-btn">
+        ✕
+      </button>
+    `;
+
+    card.addEventListener("click", () => {
+      openEdit(index);
+    });
+
+    const deleteBtn =
+      card.querySelector(".delete-btn");
+
+    deleteBtn.addEventListener(
+      "click",
+      (e) => {
+
+        e.stopPropagation();
+
+        const confirmDelete =
+          confirm(
+            `Supprimer ${player.name} ?`
+          );
+
+        if (!confirmDelete) return;
+
+        players.splice(index, 1);
+
+        savePlayers();
+
+        renderPlayers();
+
+        showToast("Supprimée 🗑️");
+      }
+    );
+
+    list.appendChild(card);
+  });
+}
+
+let editingIndex = null;
+let currentPhoto = null;
+
+function openAdd() {
+
+  editingIndex = null;
+
+  currentPhoto = null;
+
+  document.getElementById(
+    "form-title"
+  ).textContent =
+    "Ajouter une joueuse";
+
+  document.getElementById(
+    "input-name"
+  ).value = "";
+
+  document.getElementById(
+    "input-anecdote"
+  ).value = "";
+
+  document.getElementById(
+    "photo-preview"
+  ).innerHTML = "";
+
+  document
+    .getElementById("modal-form")
+    .classList.remove("hidden");
+}
+
+function openEdit(index) {
+
+  editingIndex = index;
+
+  const player = players[index];
+
+  currentPhoto = player.photo;
+
+  document.getElementById(
+    "form-title"
+  ).textContent =
+    "Modifier";
+
+  document.getElementById(
+    "input-name"
+  ).value = player.name;
+
+  document.getElementById(
+    "input-anecdote"
+  ).value =
+    player.anecdote || "";
+
+  document.getElementById(
+    "photo-preview"
+  ).innerHTML =
+    player.photo
+      ? `<img src="${player.photo}">`
+      : "";
+
+  document
+    .getElementById("modal-form")
+    .classList.remove("hidden");
+}
+
+function closeForm() {
+
+  document
+    .getElementById("modal-form")
+    .classList.add("hidden");
+}
+
+function savePlayer() {
+
+  const name =
+    document
+      .getElementById("input-name")
+      .value
+      .trim();
+
+  const anecdote =
+    document
+      .getElementById("input-anecdote")
+      .value
+      .trim();
+
+  if (!name) {
+
+    alert(
+      "Ajoute un prénom 👀"
+    );
+
+    return;
   }
+
+  const player = {
+    name,
+    anecdote,
+    photo: currentPhoto
+  };
+
+  if (editingIndex !== null) {
+
+    players[editingIndex] = player;
+
+  } else {
+
+    players.push(player);
+  }
+
+  savePlayers();
+
+  renderPlayers();
+
+  closeForm();
+
+  showToast("Sauvegardée ✅");
 }
 
-/* ================================================
-   🔄 REJOUER
-   ================================================ */
-function replay() {
-  stopConfetti();
-  gameState.manche++;
-  gameState.eliminated.clear();
-  syncMancheUI();
-  startGame();
-}
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
 
-function syncMancheUI() {
-  document.getElementById('home-manche').textContent = gameState.manche;
-  document.getElementById('game-manche').textContent = gameState.manche;
-}
+    loadPlayers();
 
-/* ================================================
-   🚀 DÉMARRER UNE PARTIE
-   ================================================ */
-function startGame() {
-  pickSecret();
-  buildCards();
-  document.getElementById('question-text').textContent = '💬 Appuie pour une question inspiration !';
-  syncMancheUI();
-  showSecretScreen();
-}
+    renderPlayers();
 
-/* ================================================
-   👁️ MODAL VOIR QUEEN
-   ================================================ */
-function openRevealModal() {
-  const p = PLAYERS[gameState.secretIdx];
-  document.getElementById('modal-avatar').innerHTML = avatarInner(p);
-  document.getElementById('modal-name').textContent = p.name;
-  document.getElementById('modal-reveal').classList.remove('hidden');
-}
-function closeRevealModal() {
-  document.getElementById('modal-reveal').classList.add('hidden');
-}
+    document
+      .getElementById("btn-start")
+      .addEventListener(
+        "click",
+        startGame
+      );
 
-/* ================================================
-   🎛️ INITIALISATION
-   ================================================ */
-function init() {
-  // Paramètres accueil
-  document.getElementById('toggle-party').addEventListener('change', e => {
-    gameState.partyMode = e.target.checked;
-  });
-  document.getElementById('toggle-sound').addEventListener('change', e => {
-    gameState.sound = e.target.checked;
-  });
+    document
+      .getElementById("btn-secret-ok")
+      .addEventListener(
+        "click",
+        () => {
+          showScreen("screen-game");
+        }
+      );
 
-  // Commencer
-  document.getElementById('btn-start').addEventListener('click', () => {
-    gameState.partyMode = document.getElementById('toggle-party').checked;
-    gameState.sound     = document.getElementById('toggle-sound').checked;
-    startGame();
-  });
+    document
+      .getElementById("btn-home")
+      .addEventListener(
+        "click",
+        () => {
+          showScreen("screen-home");
+        }
+      );
 
-  // Secret → jeu
-  document.getElementById('btn-secret-ok').addEventListener('click', () => {
-    showScreen('screen-game');
-    // Afficher bouton gage selon mode
-    document.getElementById('btn-gage').classList.toggle('hidden', !gameState.partyMode);
-  });
+    document
+      .getElementById("btn-question")
+      .addEventListener(
+        "click",
+        randomQuestion
+      );
 
-  // Retour accueil
-  document.getElementById('btn-home').addEventListener('click', () => {
-    stopConfetti();
-    syncMancheUI();
-    showScreen('screen-home');
-  });
+    document
+      .getElementById("btn-guess")
+      .addEventListener(
+        "click",
+        openGuessModal
+      );
 
-  // Voir queen
-  document.getElementById('btn-reveal').addEventListener('click', openRevealModal);
-  document.getElementById('btn-modal-close').addEventListener('click', closeRevealModal);
-  document.getElementById('modal-reveal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeRevealModal();
-  });
+    document
+      .getElementById("btn-manage")
+      .addEventListener(
+        "click",
+        () => {
 
-  // Question
-  document.getElementById('btn-question').addEventListener('click', () => {
-    const q = randomQuestion();
-    document.getElementById('question-text').textContent = q;
-    soundQuestion();
-    const card = document.getElementById('question-card');
-    card.style.borderColor = 'var(--violet)';
-    setTimeout(() => card.style.borderColor = '', 600);
-  });
+          renderPlayers();
 
-  // Gage
-  document.getElementById('btn-gage').addEventListener('click', () => {
-    const all = [...GAGES_WIN, ...GAGES_LOSE];
-    document.getElementById('question-text').textContent = '🔥 GAGE : ' + randomGage(all);
-    soundQuestion();
-  });
+          document
+            .getElementById("modal-players")
+            .classList.remove("hidden");
+        }
+      );
 
-  // Deviner
-  document.getElementById('btn-guess').addEventListener('click', openGuessModal);
-  document.getElementById('btn-guess-cancel').addEventListener('click', closeGuessModal);
-  document.getElementById('modal-guess').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeGuessModal();
-  });
+    document
+      .getElementById("btn-close-players")
+      .addEventListener(
+        "click",
+        () => {
 
-  // Rejouer
-  document.getElementById('btn-replay').addEventListener('click', replay);
-  document.getElementById('btn-replay2').addEventListener('click', replay);
+          document
+            .getElementById("modal-players")
+            .classList.add("hidden");
+        }
+      );
 
-  // Resize canvas
-  window.addEventListener('resize', () => {
-    confCanvas.width  = window.innerWidth;
-    confCanvas.height = window.innerHeight;
-  });
+    document
+      .getElementById("btn-add-player")
+      .addEventListener(
+        "click",
+        openAdd
+      );
 
-  syncMancheUI();
-  showScreen('screen-home');
-}
+    document
+      .getElementById("btn-cancel-player")
+      .addEventListener(
+        "click",
+        closeForm
+      );
 
-document.addEventListener('DOMContentLoaded', init);
+    document
+      .getElementById("btn-save-player")
+      .addEventListener(
+        "click",
+        savePlayer
+      );
+
+    document
+      .getElementById("btn-photo")
+      .addEventListener(
+        "click",
+        () => {
+
+          document
+            .getElementById("input-photo")
+            .click();
+        }
+      );
+
+    // IMPORTANT
+    // GALERIE + CAMERA
+    // ET sauvegarde base64 persistante
+
+    document
+      .getElementById("input-photo")
+      .addEventListener(
+        "change",
+        (e) => {
+
+          const file =
+            e.target.files[0];
+
+          if (!file) return;
+
+          const reader =
+            new FileReader();
+
+          reader.onload = (event) => {
+
+            currentPhoto =
+              event.target.result;
+
+            document.getElementById(
+              "photo-preview"
+            ).innerHTML = `
+              <img src="${currentPhoto}">
+            `;
+          };
+
+          reader.readAsDataURL(file);
+        }
+      );
+
+    document
+      .getElementById("btn-replay")
+      .addEventListener(
+        "click",
+        () => {
+          showScreen("screen-home");
+        }
+      );
+
+    document
+      .getElementById("btn-replay2")
+      .addEventListener(
+        "click",
+        () => {
+          showScreen("screen-home");
+        }
+      );
+  }
+);
