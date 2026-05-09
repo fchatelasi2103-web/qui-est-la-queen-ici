@@ -1,12 +1,26 @@
 let players = [];
 
 const QUESTIONS = [
-  "Qui arrive toujours en retard ? ⏰",
-  "Qui répond le plus tard ? 📱",
-  "Qui ghoste le plus ? 👻",
-  "Qui ferait de la télé-réalité ? 📺",
-  "Qui ferait le pire karaoké ? 🎤",
-  "Qui est la plus bordélique ? 🧹"
+  "A déjà ghosté quelqu'un pendant plus de 3 semaines ? 👻",
+  "Toujours en retard (au moins 15 min) ? ⏰",
+  "La plus bordélique chez elle ? 🌀",
+  "Boit des spritz à n'importe quelle heure ? 🍊",
+  "A pleuré devant une pub ? 🎭",
+  "A un crush secret qu'elle nie absolument ? 😳",
+  "Serait la première éliminée dans Koh Lanta ? 🏝️",
+  "Utilise encore des filtres Snapchat en 2024 ? 😂",
+  "A déjà fait du shopping alors qu'elle avait 'rien à mettre' ? 🛍️",
+  "La plus susceptible de passer la soirée à scroller TikTok ? 📱",
+  "A un ex qu'elle stalke encore en mode ninja ? 🔍",
+  "Pleure dès le générique d'un film ? 🎬",
+  "Fait le moins de vaisselle quand elle vient dormir ? 🍽️",
+  "La plus accro à son téléphone pendant une soirée ? 📲",
+  "A déjà commandé de la nourriture pour elle seule à 2h du mat ? 🌙",
+  "La reine du drama pour un oui ou un non ? 👑",
+  "Oublie les anniversaires même en ayant des rappels ? 🎂",
+  "La plus susceptible de rater son stop de métro ? 🚇",
+  "Fait des plans et les annule le jour même ? 🤦",
+  "La plus susceptible de se perdre même avec Google Maps ? 🗺️"
 ];
 
 const state = {
