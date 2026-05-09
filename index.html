@@ -1,153 +1,231 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qui est la Queen ? 👑</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qui est la Queen 👑</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-  <!-- CANVAS CONFETTIS -->
-  <canvas id="confetti-canvas"></canvas>
+<!-- HOME -->
+<section id="screen-home" class="screen active">
 
-  <!-- ==============================
-       ÉCRAN D'ACCUEIL
-  ============================== -->
-  <div id="screen-home" class="screen active">
-    <div class="blobs">
-      <div class="blob b1"></div>
-      <div class="blob b2"></div>
-      <div class="blob b3"></div>
-    </div>
-    <div class="home-inner">
-      <div class="crown-wrap">
-        <span class="crown">👑</span>
-        <span class="stars-deco">✨</span>
-      </div>
-      <h1 class="home-title">Qui est<br/><em>la Queen ?</em></h1>
-      <p class="home-sub">Version chaos — soirée entre potes 🍾</p>
+  <div class="container">
 
-      <div class="settings-card">
-        <label class="toggle-row">
-          <span class="toggle-text">🎲 Mode soirée <small>(gages activés)</small></span>
-          <span class="switch">
-            <input type="checkbox" id="toggle-party" />
-            <span class="slider"></span>
-          </span>
-        </label>
-        <label class="toggle-row">
-          <span class="toggle-text">🔊 Effets sonores</span>
-          <span class="switch">
-            <input type="checkbox" id="toggle-sound" checked />
-            <span class="slider"></span>
-          </span>
-        </label>
-      </div>
+    <div class="emoji">👑</div>
 
-      <button class="btn-cta" id="btn-start">Commencer 🚀</button>
-      <p class="manche-display">Manche <span id="home-manche">1</span></p>
-    </div>
+    <h1>Qui est la Queen ?</h1>
+
+    <p class="subtitle">
+      Version chaos 🍸
+    </p>
+
+    <button id="btn-start" class="btn-primary">
+      Commencer 🚀
+    </button>
+
+    <button id="btn-manage" class="btn-secondary">
+      👥 Liste des joueuses
+    </button>
+
   </div>
 
-  <!-- ==============================
-       ÉCRAN SECRET (voir sa queen)
-  ============================== -->
-  <div id="screen-secret" class="screen">
-    <div class="secret-inner">
-      <p class="secret-eyebrow">🤫 Regarde vite — ne montre à personne !</p>
-      <div class="secret-card" id="secret-card">
-        <div class="secret-avatar" id="secret-avatar"></div>
-        <p class="secret-name" id="secret-name"></p>
-        <p class="secret-anecdote" id="secret-anecdote"></p>
-      </div>
-      <p class="secret-hint">C'est ta <strong>Queen secrète</strong> à deviner 👑</p>
-      <button class="btn-cta" id="btn-secret-ok">C'est bon, je m'en souviens !</button>
-    </div>
+</section>
+
+<!-- SECRET -->
+<section id="screen-secret" class="screen">
+
+  <div class="container">
+
+    <div id="secret-avatar" class="big-avatar"></div>
+
+    <h2 id="secret-name"></h2>
+
+    <p id="secret-anecdote"></p>
+
+    <button id="btn-secret-ok" class="btn-primary">
+      J'ai vu 👀
+    </button>
+
   </div>
 
-  <!-- ==============================
-       ÉCRAN DE JEU
-  ============================== -->
-  <div id="screen-game" class="screen">
-    <header class="game-header">
-      <button class="icon-btn" id="btn-home" title="Accueil">🏠</button>
-      <span class="manche-badge">Manche <span id="game-manche">1</span></span>
-      <button class="icon-btn" id="btn-reveal" title="Voir ma queen secrète">👁️</button>
-    </header>
+</section>
 
-    <div class="cards-grid" id="cards-grid"></div>
+<!-- GAME -->
+<section id="screen-game" class="screen">
 
-    <div class="bottom-zone">
-      <div class="question-card" id="question-card">
-        <p class="question-text" id="question-text">💬 Appuie pour une question inspiration !</p>
-      </div>
-      <div class="question-actions">
-        <button class="btn-secondary" id="btn-question">🎲 Question aléatoire</button>
-        <button class="btn-gage hidden" id="btn-gage">🔥 Gage !</button>
-      </div>
-      <div class="guess-area">
-        <p class="guess-hint">Tu penses avoir trouvé ?</p>
-        <button class="btn-cta btn-guess" id="btn-guess">Je devine ! 🎯</button>
-      </div>
+  <header>
+
+    <button id="btn-home" class="icon-btn">
+      🏠
+    </button>
+
+    <button id="btn-show-secret" class="icon-btn">
+      👁️
+    </button>
+
+  </header>
+
+  <div id="cards-grid" class="cards-grid"></div>
+
+  <div class="bottom-zone">
+
+    <div class="question-card">
+      <p id="question-text">
+        Clique pour une question 🎲
+      </p>
     </div>
+
+    <button id="btn-question" class="btn-secondary">
+      Nouvelle question
+    </button>
+
+    <button id="btn-guess" class="btn-primary">
+      Je devine 🎯
+    </button>
+
   </div>
 
-  <!-- ==============================
-       MODAL : Voir queen secrète
-  ============================== -->
-  <div id="modal-reveal" class="modal-overlay hidden">
-    <div class="modal-box">
-      <p class="modal-eyebrow">Ta queen secrète c'est…</p>
-      <div class="modal-avatar" id="modal-avatar"></div>
-      <p class="modal-name" id="modal-name"></p>
-      <button class="btn-cta" id="btn-modal-close">OK j'ai vu 👀</button>
-    </div>
+</section>
+
+<!-- WIN -->
+<section id="screen-win" class="screen">
+
+  <div class="container">
+
+    <div class="emoji">🏆</div>
+
+    <div id="win-avatar" class="big-avatar"></div>
+
+    <h2 id="win-name"></h2>
+
+    <button id="btn-replay" class="btn-primary">
+      Rejouer 🔄
+    </button>
+
   </div>
 
-  <!-- ==============================
-       MODAL : Deviner
-  ============================== -->
-  <div id="modal-guess" class="modal-overlay hidden">
-    <div class="modal-box">
-      <p class="modal-eyebrow">C'est qui ta queen ? 🎯</p>
-      <div class="guess-grid" id="guess-grid"></div>
-      <button class="btn-outline" id="btn-guess-cancel">← Annuler</button>
-    </div>
+</section>
+
+<!-- LOSE -->
+<section id="screen-lose" class="screen">
+
+  <div class="container">
+
+    <div class="emoji">😬</div>
+
+    <div id="lose-avatar" class="big-avatar"></div>
+
+    <h2 id="lose-name"></h2>
+
+    <button id="btn-replay2" class="btn-primary">
+      Rejouer 🔄
+    </button>
+
   </div>
 
-  <!-- ==============================
-       ÉCRAN VICTOIRE
-  ============================== -->
-  <div id="screen-win" class="screen">
-    <div class="result-inner">
-      <div class="result-emoji">🏆</div>
-      <h2 class="result-title">BRAVO !</h2>
-      <p class="result-sub" id="win-sub"></p>
-      <div class="result-avatar" id="win-avatar"></div>
-      <p class="result-name" id="win-name"></p>
-      <div class="result-gage hidden" id="win-gage"></div>
-      <button class="btn-cta" id="btn-replay">Rejouer 🔄</button>
-    </div>
+</section>
+
+<!-- GUESS MODAL -->
+<div id="modal-guess" class="modal hidden">
+
+  <div class="modal-box">
+
+    <h2>Qui est-ce ? 🎯</h2>
+
+    <div id="guess-grid" class="guess-grid"></div>
+
   </div>
 
-  <!-- ==============================
-       ÉCRAN DÉFAITE
-  ============================== -->
-  <div id="screen-lose" class="screen">
-    <div class="result-inner">
-      <div class="result-emoji">😬</div>
-      <h2 class="result-title">RATÉ !</h2>
-      <p class="result-sub" id="lose-sub"></p>
-      <div class="result-avatar" id="lose-avatar"></div>
-      <p class="result-name" id="lose-name"></p>
-      <div class="result-gage hidden" id="lose-gage"></div>
-      <button class="btn-cta" id="btn-replay2">Rejouer 🔄</button>
+</div>
+
+<!-- PLAYERS MODAL -->
+<div id="modal-players" class="modal hidden">
+
+  <div class="modal-box players-box">
+
+    <div class="players-header">
+
+      <h2>👥 Joueuses</h2>
+
+      <button id="btn-close-players" class="icon-btn">
+        ✕
+      </button>
+
     </div>
+
+    <div id="players-list"></div>
+
+    <button id="btn-add-player" class="floating-btn">
+      +
+    </button>
+
   </div>
 
-  <script src="script.js"></script>
+</div>
+
+<!-- FORM MODAL -->
+<div id="modal-form" class="modal hidden">
+
+  <div class="modal-box">
+
+    <h2 id="form-title">
+      Ajouter une joueuse
+    </h2>
+
+    <input
+      type="text"
+      id="input-name"
+      class="input"
+      placeholder="Prénom"
+    >
+
+    <textarea
+      id="input-anecdote"
+      class="input"
+      placeholder="Anecdote"
+    ></textarea>
+
+    <!-- IMPORTANT -->
+    <!-- PAS de capture=environment -->
+    <!-- comme ça : -->
+    <!-- téléphone = caméra OU galerie -->
+
+    <input
+      type="file"
+      id="input-photo"
+      accept="image/*"
+      hidden
+    >
+
+    <button id="btn-photo" class="btn-secondary">
+      📸 Ajouter une photo
+    </button>
+
+    <div id="photo-preview"></div>
+
+    <button id="btn-save-player" class="btn-primary">
+      Sauvegarder ✅
+    </button>
+
+    <button id="btn-cancel-player" class="btn-secondary">
+      Annuler
+    </button>
+
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script src="script.js"></script>
+
 </body>
 </html>
